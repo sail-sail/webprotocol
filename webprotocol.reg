@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+[HKEY_CLASSES_ROOT\webprotocol]
+"URL Protocol"="D:\\Program Files\\webprotocol\\webprotocol.exe"
+@="webprotocol"
+[HKEY_CLASSES_ROOT\webprotocol\shell]
+[HKEY_CLASSES_ROOT\webprotocol\shell\open]
+[HKEY_CLASSES_ROOT\webprotocol\shell\open\command]
+@="\"D:\\Program Files\\webprotocol\\webprotocol.exe\" %1"
