@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using Spire.Pdf;
+using System;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace webprotocol
 {
@@ -16,19 +12,56 @@ namespace webprotocol
 
         static void Main(string[] args)
         {
-            string url = "http://127.0.0.1:4000/a.docx";
+            string url = args[0];
+
+            bool preview = false;
+            string tempFile;
             string fileType = "word";
-            bool preview = true;
-            // string tempFile = Downloadfile(url);
-            string tempFile = "C:\\Users\\15126\\Desktop\\a.docx";
-            log.Write("tempFile:" + tempFile);
+
+            url = url.Replace("webprotocol://https-", "https://")
+                .Replace("webprotocol://http-", "http://");
+            var uri = new Uri(url);
+            var query = HttpUtility.ParseQueryString(uri.Query);
+
+            var previewStr = query["_preview"];
+            if (previewStr == "1")
+            {
+                preview = true;
+            }
+
+            var base64Str = query["base64"];
+            if (base64Str != null && base64Str != "")
+            {
+                var buffer = Convert.FromBase64String(base64Str);
+                tempFile = Path.GetTempFileName();
+                FileStream fs = new FileStream(tempFile, FileMode.Create);
+                fs.Write(buffer, 0, buffer.Length);
+                fs.Flush();
+                fs.Close();
+            }
+            else
+            {
+              tempFile = Downloadfile(url);
+            }
+
+            var fileTypeStr = query["_type"];
+            if (fileTypeStr.Trim() != "")
+            {
+                fileType = fileTypeStr;
+            }
+
+            // string tempFile = "C:\\Users\\15126\\Desktop\\a.docx";
             if (fileType == "word")
             {
                 PrintWord(tempFile, preview);
             }
             else if (fileType == "excel")
             {
-
+                PrintExcel(tempFile, preview);
+            }
+            else if (fileType == "pdf")
+            {
+                PrintPdf(tempFile, preview);
             }
         }
 
@@ -90,6 +123,13 @@ namespace webprotocol
                 xApp = null;
                 GC.Collect();
             }
+        }
+
+        private static void PrintPdf(string fileName, bool preview)
+        {
+            PdfDocument doc = new PdfDocument();
+            doc.LoadFromFile(fileName);
+            doc.Print();
         }
 
     }
